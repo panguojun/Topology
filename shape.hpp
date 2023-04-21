@@ -1,35 +1,35 @@
 /**
-*						ã€å‡ ä½•ä½“ã€‘
+*						¡¾¼¸ºÎÌå¡¿
 * 
-*				å‡ ä½•ä½“ç”±æ‹“æ‰‘ï¼Œç‚¹é›†ï¼Œçº¦æŸä¸‰è€…ç”Ÿæˆ
+*				¼¸ºÎÌåÓÉÍØÆË£¬µã¼¯£¬Ô¼ÊøÈıÕßÉú³É
 */
 namespace geomertry
 {
 	struct shape
 	{
-		TOPO_TREE::topo_shape* tshape;		// æ‹“æ‰‘
-		vec3* pset;				// ç‚¹é›†
-		constraint* cstlist;	// çº¦æŸ
+		topoG* tshape;								// ÍØÆË
+		vec3* p_set = &GTable::p_set[0];			// µã¼¯
+		constraint* cstlist = &GTable::cst_list[0];	// Ô¼Êø
 
-		void generate_face(TOPO_TREE::surface_topo* surf, submesh& sm)
+		void generate_face(topoF* surf, submesh& sm)
 		{
-			PRINT("SSSSSSSSSSSSSSSSSSSS	Generate Surface " << surf->tlist.size() << " SSSSSSSSSSSSSSSSSSSS");
+			PRINT("SSSSSSSSSSSSSSSSSSSS	Generate Surface " << surf->tedges.size() << " SSSSSSSSSSSSSSSSSSSS");
 			//getchar();
 			VECLIST e0;
-			TOPO_TREE::edge_topo* et0 = 0;
-			for (auto et : surf->tlist)
+			topoE* et0 = 0;
+			for (auto et : surf->tedges)
 			{
-				PRINT("CREATE EDGE(L) : " << et->name)
-					VECLIST e;
-				// æ²¿ç€å·¦ä¾§éå†
-				et->walkdownL(et, [this, &e, &sm, et](crstr name, int start, int end) // éå†æ‹“æ‰‘ç»“æ„
+				PRINT("CREATE EDGE(L) : " << et->name);
+				VECLIST e;
+				// ÑØ×Å×ó²à±éÀú
+				et->walkL(et, [this, &e, &sm, et](topoE* to, int start, int end) // ±éÀúÍØÆË½á¹¹
 					{
-						PRINT("---------Lwalk: " << name << " " << start << "," << end);
-						et->space.walk([&e, et, start, end](real u)					// éå†ç©ºé—´ç»“æ„
+						PRINT("---------Lwalk: " << to->name << " " << start << "," << end);
+						to->space.walk([this, &e, to, start, end](int i, real u)					// ±éÀú¿Õ¼ä½á¹¹
 							{
-								crvec p1 = GTable::p_set[start - 1];
-								crvec p2 = GTable::p_set[end - 1];
-								coord3 cd = GTable::cst_list[et->cs].getCD(u);				// è®¡ç®—ç‚¹çš„åæ ‡å˜æ¢
+								crvec p1 = this->p_set[start - 1];
+								crvec p2 = this->p_set[end - 1];
+								coord3 cd = cstlist[to->cs].getCD(u);				// ¼ÆËãµãµÄ×ø±ê±ä»»
 								vec3 p = blend(p1, p2, u) * cd;
 								PRINT("e1: (" << e.size() + 1 << ")" << p.x << "," << p.y << "," << p.z);
 								if (e.empty() || e.back().p != p)
@@ -40,17 +40,17 @@ namespace geomertry
 				{
 					if (et0->is_compound())
 					{
-						PRINT("CREATE EDGE(R) : " << et0->name)
-							e0.clear();
-						// æ²¿ç€å³ä¾§éå†
-						et0->walkdownR(et0, [this, &e0, &sm, et0](crstr name, int start, int end) // éå†æ‹“æ‰‘ç»“æ„
+						PRINT("CREATE EDGE(R) : " << et0->name);
+						e0.clear();
+						// ÑØ×ÅÓÒ²à±éÀú
+						et0->walkR(et0, [this, &e0, &sm, et0](topoE* to, int start, int end) // ±éÀúÍØÆË½á¹¹
 							{
-								PRINT("----------Rwalk: " << name << " " << start << "," << end);
-								et0->space.walk([&e0, et0, start, end](real u)			// éå†ç©ºé—´ç»“æ„
+								PRINT("----------Rwalk: " << to->name << " " << start << "," << end);
+								to->space.walk([this, &e0, to, start, end](int i, real u)			// ±éÀú¿Õ¼ä½á¹¹
 									{
-										crvec p1 = GTable::p_set[start - 1];
-										crvec p2 = GTable::p_set[end - 1];
-										coord3 cd = GTable::cst_list[et0->cs].getCD(u);		// è®¡ç®—ç‚¹çš„åæ ‡å˜æ¢
+										crvec p1 = p_set[start - 1];
+										crvec p2 = p_set[end - 1];
+										coord3 cd = cstlist[to->cs].getCD(u);			// ¼ÆËãµãµÄ×ø±ê±ä»»
 										vec3 p = blend(p1, p2, u) * cd;
 										PRINT("e0: (" << e0.size() + 1 << ")" << p.x << "," << p.y << "," << p.z);
 										if (e0.empty() || e0.back().p != p)
@@ -61,7 +61,7 @@ namespace geomertry
 					}
 
 					PRINT("================== face: " << e0.size() << " : " << e.size());
-					// ç»˜åˆ¶ä»£ç 
+					// »æÖÆ´úÂë
 					//SETSM(sm);
 					face(e0, e);
 					//for (int i = 0; i < e0.size(); i ++)
@@ -88,10 +88,10 @@ namespace geomertry
 				pt3d(v, 0.2);
 			}
 
-			for (auto surfit : tshape->topo_surfs)
+			for (auto surfit : tshape->tsurfaces)
 				generate_face(surfit, sm);
 
-			tshape->topo_surfs.clear();
+			tshape->tsurfaces.clear();
 		}
 	};
 
@@ -101,27 +101,11 @@ namespace geomertry
 	void test_generate()
 	{
 		shape shp;
-		shp.tshape = &TOPO_TREE::topo_shapes[0];
+		shp.tshape = &TOPO_TREE::tshapes[0];
 		shp.generate(SUBMESH);
 
-		for (auto& e : TOPO_TREE::edge_list)
+		for (auto& e : TOPO_TREE::tedges)
 			e.clear();
-		TOPO_TREE::edge_list.clear();
+		TOPO_TREE::tedges.clear();
 	}
-	void shape_alpha()
-	{
-	    topo E;
-	    vec2 V[8];
-	    cst2 C[8];
-	    grid1 S[8] = {1,8,18};
-	    E.walk([V, C, S](topo* to, int s){
-		S[s].walk([V, C, to](real t){
-		    crvec2 p1 = V[to.start];
-		    crvec2 p2 = V[to.end];
-		    vec2 p = blend(p1, p2, t) * C[to.c];
-		    pixel(p);
-		}
-	    });
-	}
-}
 }
