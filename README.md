@@ -20,7 +20,7 @@ te.children.emplace_back(&te1);
 te.children.emplace_back(&te3);
 te3.children.emplace_back(&te4);
 te3.children.emplace_back(&te5);
-te.children.push_back(&te2);
+te.children.emplace_back(&te2);
 
 static const vec3 p_set[] = {
     vec3(-1, -1, 1) ,vec3(0.5, 1, 1), 
