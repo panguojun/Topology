@@ -1,85 +1,75 @@
-/*                         ã€æ‹“æ‰‘æ ‘ã€‘                               *
-*                                                                   *
-*                   æ‹“æ‰‘ä»å›¾å˜ä¸ºæ ‘å‡†å¤‡é€ å‹ä½¿ç”¨                      *
-*                                                                   *
-*                   ä»»ä½•å›¾çŠ¶ç»“æ„éƒ½å¯ä»¥è½¬åŒ–ä¸ºæ ‘çŠ¶ç»“æ„                *
-*                   æŒ‰ç…§æŸç§è§„åˆ™éå†æ ‘å¯ä»¥å¾—åˆ°ä¸åŒçš„é“¾ç»“æ„          *
-*                   ä¾‹å¦‚ï¼še{e1,e2{ee1,ee2},e3}                      *
-*                   ä¸€ä¸ªå½¢çŠ¶å¯ä»¥å½¢å¼åŒ–ä¸ºï¼š                          *
-*                       shape = {topo, coord, space}                *
-*                                                                   *
-*                   å¦å¤–ï¼šå›¾å¯¹åº”äº†æ–¹ç¨‹ æ ‘å¯¹åº”äº†æ–¹ç¨‹çš„è§£ç»“æ„         *
-*                                                                   *    
-* * * * * * * * * ** * * * * *  ç¤ºä¾‹ä»£ç  * * * * * * * * * ** * * * * 
-
-        topoE te =  {"te",{0}, false };
-        topoE te1 = { "te1",{0, 1}, false};
-        topoE te2 = { "te2",{2, 3}, false};
-        topoE te3 = { "te3", {0}, true };
-        topoE te4 = { "te4",{1, 2}, false };
-        topoE te5 = { "te5",{1, 3}, false };
-      
-        te.children.emplace_back(&te1);
-        te.children.emplace_back(&te3);
-        te3.children.emplace_back(&te4);
-        te3.children.emplace_back(&te5);
-        te.children.emplace_back(&te2);
-
-        static const vec3 p_set[] = {
-            vec3(-1, -1, 1) ,vec3(0.5, 1, 1), 
-            vec3(-2, 1.8, 3), vec3(2, 1.8, -3)
-        };
-        {
-            VECLIST e;
-            vec3 p0;
-            // æ²¿ç€å·¦ä¾§éå†
-            te.walkL([&e, &p0](topoE* to, real t) {
-                coord3 c1(p_set[to->e.start]), c2(p_set[to->e.end]);
-                c1.rot(-45, vec3::UZ); c2.rot(45, vec3::UX);
-                vec3 p = blender::slerp(c1, c2, t).o;
-
-                if (VECLIST_ADD(e, p)) {
-                    if (p0 != vec3::ZERO)
-                        ptr(p0, p, 0.01);
-                    p0 = p;
-                }
-            });
-            PRINT(e.size() << " = " << COMBINE_STEPS(5,3));
-        }
+/*                         ¡¾ÍØÆËÊ÷¡¿                                   *
+*                                                                       *
+*                   ÍØÆË´ÓÍ¼±äÎªÊ÷×¼±¸ÔìĞÍÊ¹ÓÃ                          *
+*                                                                       *
+*                   ÈÎºÎÍ¼×´½á¹¹¶¼¿ÉÒÔ×ª»¯ÎªÊ÷×´½á¹¹                    *
+*                   °´ÕÕÄ³ÖÖ¹æÔò±éÀúÊ÷¿ÉÒÔµÃµ½²»Í¬µÄÁ´½á¹¹              *
+*                   ÀıÈç£ºe{e1,e2{ee1,ee2},e3}                          *
+*                   Ò»¸öĞÎ×´¿ÉÒÔĞÎÊ½»¯Îª£º                              *
+*                       shape = {topo, coord, space}                    *
+*                                                                       *
+*                   ÁíÍâ£ºÍ¼¶ÔÓ¦ÁË·½³Ì Ê÷¶ÔÓ¦ÁË·½³ÌµÄ½â½á¹¹             *
+*                                                                       *    
+* * * * * * * * * * ** * * * * Ê¾Àı´úÂë * * * * * * * * * * * * * * * * *
+* 
+            // ÈıÍ¨µÄÍØÆË
+            topoE te1 = { "e1",{1, 2} }; te1.space.steps = 13;
+            topoE te2 = { "e2" };
+            topoE te21 = { "e21",{3,4} };
+            topoE te22 = { "e22", true };
+            topoE te221 = { "e221",{4,5}, topoE::eLeft };
+            topoE te222 = { "e222",{4,5}, topoE::eRight };
+            topoE te23 = { "e23",{5,6} };
+            topoE te3 = { "e3",{7, 8} }; te3.space.steps = 13;
+            {
+                te22.addchild(&te221);
+                te22.addchild(&te222);
+            
+                te2.addchild(&te21);
+                te2.addchild(&te22);
+                te2.addchild(&te23);
+            }
 */
 namespace TOPO_TREE 
 {	
 	struct tedge;
-	vector<tedge> tedges;					        // è¾¹åˆ—è¡¨
+	vector<tedge> tedges;					        // ±ßÁĞ±í
     struct tshape;
-    vector<tshape> tshapes;                         // å½¢åˆ—è¡¨
+    vector<tshape> tshapes;                         // ĞÎÁĞ±í
 
 	// ------------------------------
-	// è¾¹
+	// ±ß
 	// ------------------------------
     struct tedge
     {
         string name;
-        struct edge { int start, end; } e;          // è¾¹å¯¹è±¡(å¶èŠ‚ç‚¹ä¸Š)
-        bool bmutex = false;                        // å­åˆ—è¡¨æ˜¯å¦äº’æ–¥ 
+        struct edge { int start, end; } e;          // ±ß¶ÔÏó(Ò¶½ÚµãÉÏ)
+        bool bmutex = false;                        // ×ÓÁĞ±íÊÇ·ñ»¥³â 
+        enum asymmetry { eNone, eLeft, eRight} lr = eNone;  // ÊÖĞÔ
 
-        // å…³è”ä¸åŒçš„çº¦æŸä¸å‚æ•°ç©ºé—´
+        // ¹ØÁª²»Í¬µÄÔ¼ÊøÓë²ÎÊı¿Õ¼ä
         Lineiter space = { 0, 1, 5 };
         int cs = 0;
 
-        tedge* parent = 0;                      // çˆ¶
-        std::vector<tedge*> children;           // å­åˆ—è¡¨
+        tedge* parent = 0;                          // ¸¸
+        std::vector<tedge*> children;               // ×ÓÁĞ±í
 
 		tedge() {}
 
-		// åˆå§‹åŒ–åˆ—è¡¨æ„é€ å‡½æ•°
+		// ³õÊ¼»¯ÁĞ±í¹¹Ôìº¯Êı
 		tedge(string name_, edge e_, bool bmutex_ = false)
 			: name(std::move(name_)), e(std::move(e_)), bmutex(bmutex_)
 		{}
+        tedge(string name_, edge e_, asymmetry lr_, bool bmutex_ = false)
+            : name(std::move(name_)), e(std::move(e_)), lr(lr_), bmutex(bmutex_)
+        {}
+        tedge(string name_, bool bmutex_ = false)
+            : name(std::move(name_)), bmutex(bmutex_)
+        {}
         tedge(edge e_, bool bmutex_ = false)
             : e(std::move(e_)), bmutex(bmutex_)
         {}
-		// ç§»åŠ¨æ„é€ å‡½æ•°
+		// ÒÆ¶¯¹¹Ôìº¯Êı
 		tedge(tedge&& other) noexcept
 			: name(std::move(other.name)),
 			e(std::move(other.e)),
@@ -90,7 +80,7 @@ namespace TOPO_TREE
 		{
 			other.parent = nullptr;
 		}
-		// ç§»åŠ¨èµ‹å€¼å‡½æ•°
+		// ÒÆ¶¯¸³Öµº¯Êı
 		tedge& operator=(tedge&& other) noexcept {
 			if (this != &other) {
 				name = std::move(other.name);
@@ -111,7 +101,10 @@ namespace TOPO_TREE
         {
             children.push_back(et);
         }
-
+        void addchild(tedge* c)
+        {
+            children.push_back(c);
+        }
         void walkL(std::function<void(tedge* to, real t)> cb)
         {
             //PRINT("walkdownL " << name << "," << this->e.start << "," << this->e.end);
@@ -121,11 +114,11 @@ namespace TOPO_TREE
                    // PRINT("[" << space.min << "," << space.max << "," << space.steps << "]");
                     space.walk([this, &cb](int i, real t) { cb(this, t); });
                 }
-                return; // è¿”å›
+                return; // ·µ»Ø
             }
-            if (bmutex) // å¯ä»¥æ ¹æ®CHILDRENæ˜¯å¦å¤šä½™1ä¸ªæ¥åˆ¤æ–­
+            if (bmutex) // ¿ÉÒÔ¸ù¾İCHILDRENÊÇ·ñ¶àÓà1¸öÀ´ÅĞ¶Ï
             {
-                //PRINT("äº’æ–¥é€‰ LEFT");
+                //PRINT("»¥³âÑ¡ LEFT");
                 children.front()->walkL(cb);
 
             } else {
@@ -142,11 +135,11 @@ namespace TOPO_TREE
                     PRINT("[" << space.min << "," << space.max << "," << space.steps << "]");
                     space.walk([this, &cb](int i, real t) { cb(this, t); });
                 }
-                return; // è¿”å›
+                return; // ·µ»Ø
             }
-            if (bmutex) // å¯ä»¥æ ¹æ®CHILDRENæ˜¯å¦å¤šä½™1ä¸ªæ¥åˆ¤æ–­
+            if (bmutex) // ¿ÉÒÔ¸ù¾İCHILDRENÊÇ·ñ¶àÓà1¸öÀ´ÅĞ¶Ï
             {
-               // PRINT("äº’æ–¥é€‰ RIGHT");
+               // PRINT("»¥³âÑ¡ RIGHT");
                 children.back()->walkR(cb);
 
             } else {
@@ -160,12 +153,12 @@ namespace TOPO_TREE
             if (to->children.empty()) {
                 if(cb)
                     cb(to, to->e.start, to->e.end);
-                return; // è¿”å›
+                return; // ·µ»Ø
             }
-            if (to->bmutex) // å¯ä»¥æ ¹æ®CHILDRENæ˜¯å¦å¤šä½™1ä¸ªæ¥åˆ¤æ–­
+            if (to->bmutex) // ¿ÉÒÔ¸ù¾İCHILDRENÊÇ·ñ¶àÓà1¸öÀ´ÅĞ¶Ï
             {
                 
-              //  PRINT("äº’æ–¥é€‰ LEFT");
+              //  PRINT("»¥³âÑ¡ LEFT");
                 walkL(to->children.front(), cb);
                 
             } else {
@@ -179,11 +172,11 @@ namespace TOPO_TREE
             if (to->children.empty()) {
                 if (cb)
                     cb(to, to->e.end, to->e.start);
-                return; // è¿”å›
+                return; // ·µ»Ø
             }
-            if (to->bmutex) // å¯ä»¥æ ¹æ®CHILDRENæ˜¯å¦å¤šä½™1ä¸ªæ¥åˆ¤æ–­
+            if (to->bmutex) // ¿ÉÒÔ¸ù¾İCHILDRENÊÇ·ñ¶àÓà1¸öÀ´ÅĞ¶Ï
             {
-               // PRINT("äº’æ–¥é€‰ RIGHT");
+               // PRINT("»¥³âÑ¡ RIGHT");
                 walkR(to->children.back(), cb);
 
             } else {
@@ -206,17 +199,66 @@ namespace TOPO_TREE
         }
     };
 	// ------------------------------
-	// æ›²é¢
+	// ÇúÃæ
 	// ------------------------------
 	struct tsurface
 	{
-		std::vector<tedge*> tedges;				// æš‚æ—¶è€ƒè™‘åˆ—è¡¨å¼æ‹“æ‰‘ç»“æ„
+		std::vector<tedge*> tedges;				// ÔİÊ±¿¼ÂÇÁĞ±íÊ½ÍØÆË½á¹¹
 	};
 	// ------------------------------
-	// å½¢çŠ¶
+	// ĞÎ×´
 	// ------------------------------
 	struct tshape
 	{
-		std::vector<tsurface*> tsurfaces;	    // æ‹“æ‰‘é¢åˆ—è¡¨
+		std::vector<tsurface*> tsurfaces;	    // ÍØÆËÃæÁĞ±í
 	};
+}
+inline bool VECLIST_ADD(VECLIST& e, crvec p) { if (e.empty() || e.back().p != p) { e.push_back(p); return true; } return false; }
+inline void topo_edgeL(VECLIST& e, topoE& te, vec3 p_set[])
+{
+    //color = RED;
+    vec3 p0;
+    te.walkL([&](topoE* to, real t) {
+        vec3 p;
+        if (to->lr == topoE::eNone) {
+            p = blend(p_set[to->e.start], p_set[to->e.end], t);
+        }
+        else {
+            coord3 c1(p_set[to->e.start]), c2(p_set[to->e.end]);
+            p = to->lr == topoE::eLeft ?
+                blender::slerp(c1, c2, (c1 + c2) / 2.0f, t).o :
+                blender::slerp_conjcopy(c1, c2, (c1 + c2) / 2.0f, t).o;
+        }
+        if (VECLIST_ADD(e, p)) {
+            /* PRINT("(" << e.size() << ") " << to->name);
+             pt3d(p, 0.01 * e.size());
+             if (p0 != vec3::ZERO)
+                 ptr(p0, p, 0.01);*/
+            p0 = p;
+        }
+        });
+}
+inline void topo_edgeR(VECLIST& e, topoE& te, vec3 p_set[])
+{
+    //color = BLUE;
+    vec3 p0;
+    te.walkR([&](topoE* to, real t) {
+        vec3 p;
+        if (to->lr == topoE::eNone) {
+            p = blend(p_set[to->e.start], p_set[to->e.end], t);
+        }
+        else {
+            coord3 c1(p_set[to->e.start]), c2(p_set[to->e.end]);
+            p = to->lr == topoE::eLeft ?
+                blender::slerp(c1, c2, (c1 + c2) / 2.0f, t).o :
+                blender::slerp_conjcopy(c1, c2, (c1 + c2) / 2.0f, t).o;
+        }
+        if (VECLIST_ADD(e, p)) {
+            /*  PRINT("(" << e.size() << ") " << to->name);
+              pt3d(p, 0.01 * e.size());
+              if (p0 != vec3::ZERO)
+                  ptr(p0, p, 0.01);*/
+            p0 = p;
+        }
+        });
 }
