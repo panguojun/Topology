@@ -1,26 +1,26 @@
-/*                         ¡¾ÍØÆËÊ÷¡¿                                   *
+/*                         ã€æ‹“æ‰‘æ ‘ã€‘                                   *
 *                                                                       *
-*                   ÍØÆË´ÓÍ¼±äÎªÊ÷×¼±¸ÔìĞÍÊ¹ÓÃ                          *
+*                   æ‹“æ‰‘ä»å›¾å˜ä¸ºæ ‘å‡†å¤‡é€ å‹ä½¿ç”¨                          *
 *                                                                       *
-*                   ÈÎºÎÍ¼×´½á¹¹¶¼¿ÉÒÔ×ª»¯ÎªÊ÷×´½á¹¹                    *
-*                   °´ÕÕÄ³ÖÖ¹æÔò±éÀúÊ÷¿ÉÒÔµÃµ½²»Í¬µÄÁ´½á¹¹              *
-*                   ÀıÈç£ºe{e1,e2{ee1,ee2},e3}                          *
-*                   Ò»¸öĞÎ×´¿ÉÒÔĞÎÊ½»¯Îª£º                              *
+*                   ä»»ä½•å›¾çŠ¶ç»“æ„éƒ½å¯ä»¥è½¬åŒ–ä¸ºæ ‘çŠ¶ç»“æ„                    *
+*                   æŒ‰ç…§æŸç§è§„åˆ™éå†æ ‘å¯ä»¥å¾—åˆ°ä¸åŒçš„é“¾ç»“æ„              *
+*                   ä¾‹å¦‚ï¼še{e1,e2{ee1,ee2},e3}                          *
+*                   ä¸€ä¸ªå½¢çŠ¶å¯ä»¥å½¢å¼åŒ–ä¸ºï¼š                              *
 *                       shape = {topo, coord, space}                    *
 *                                                                       *
-*                   ÁíÍâ£ºÍ¼¶ÔÓ¦ÁË·½³Ì Ê÷¶ÔÓ¦ÁË·½³ÌµÄ½â½á¹¹             *
+*                   å¦å¤–ï¼šå›¾å¯¹åº”äº†æ–¹ç¨‹ æ ‘å¯¹åº”äº†æ–¹ç¨‹çš„è§£ç»“æ„             *
 *                                                                       *    
-* * * * * * * * * * ** * * * * Ê¾Àı´úÂë * * * * * * * * * * * * * * * * *
+* * * * * * * * * * ** * * * * ç¤ºä¾‹ä»£ç  * * * * * * * * * * * * * * * * *
 * 
-            // ÈıÍ¨µÄÍØÆË
-            topoE te1 = { "e1",{1, 2} }; te1.space.steps = 13;
-            topoE te2 = { "e2" };
-            topoE te21 = { "e21",{3,4} };
-            topoE te22 = { "e22", true };
-            topoE te221 = { "e221",{4,5}, topoE::eLeft };
-            topoE te222 = { "e222",{4,5}, topoE::eRight };
-            topoE te23 = { "e23",{5,6} };
-            topoE te3 = { "e3",{7, 8} }; te3.space.steps = 13;
+            // ä¸‰é€šæ‹“æ‰‘: te1->te2->te3 ç®¡å£å¹³è¡Œè¾¹ï¼Œå…¶ä¸­te2è·Ÿä¸€ä¸ªå­”(te22)ç›¸è¿æ¥
+            topoE te1 =     { "e1",{1, 2} }; te1.space.steps = 13;
+            topoE te2 =     { "e2" };
+            topoE te21 =    { "e21",{3,4} };
+            topoE te22 =    { "e22", true };
+            topoE te221 =   { "e221",{4,5}, topoE::eLeft };
+            topoE te222 =   { "e222",{4,5}, topoE::eRight };
+            topoE te23 =    { "e23",{5,6} };
+            topoE te3 =     { "e3",{7, 8} }; te3.space.steps = 13;
             {
                 te22.addchild(&te221);
                 te22.addchild(&te222);
@@ -33,43 +33,40 @@
 namespace TOPO_TREE 
 {	
 	struct tedge;
-	vector<tedge> tedges;					        // ±ßÁĞ±í
+	vector<tedge> tedges;					        // è¾¹åˆ—è¡¨
     struct tshape;
-    vector<tshape> tshapes;                         // ĞÎÁĞ±í
+    vector<tshape> tshapes;                         // å½¢åˆ—è¡¨
 
 	// ------------------------------
-	// ±ß
+	// è¾¹
 	// ------------------------------
     struct tedge
     {
         string name;
-        struct edge { int start, end; } e;          // ±ß¶ÔÏó(Ò¶½ÚµãÉÏ)
-        bool bmutex = false;                        // ×ÓÁĞ±íÊÇ·ñ»¥³â 
-        enum asymmetry { eNone, eLeft, eRight} lr = eNone;  // ÊÖĞÔ
+        struct edge { int start = 0, end = 0; } e;          // è¾¹å¯¹è±¡(å¶èŠ‚ç‚¹ä¸Š)
+        bool bmutex = false;                        // å­åˆ—è¡¨æ˜¯å¦äº’æ–¥ 
+       // enum asymmetry { eNone, eLeft, eRight} lr = eNone;  // æ‰‹æ€§
 
-        // ¹ØÁª²»Í¬µÄÔ¼ÊøÓë²ÎÊı¿Õ¼ä
+        // å…³è”ä¸åŒçš„çº¦æŸä¸å‚æ•°ç©ºé—´
         Lineiter space = { 0, 1, 5 };
         int cs = 0;
 
-        tedge* parent = 0;                          // ¸¸
-        std::vector<tedge*> children;               // ×ÓÁĞ±í
+        tedge* parent = 0;                          // çˆ¶
+        std::vector<tedge*> children;               // å­åˆ—è¡¨
 
 		tedge() {}
 
-		// ³õÊ¼»¯ÁĞ±í¹¹Ôìº¯Êı
+		// åˆå§‹åŒ–åˆ—è¡¨æ„é€ å‡½æ•°
 		tedge(string name_, edge e_, bool bmutex_ = false)
 			: name(std::move(name_)), e(std::move(e_)), bmutex(bmutex_)
 		{}
-        tedge(string name_, edge e_, asymmetry lr_, bool bmutex_ = false)
-            : name(std::move(name_)), e(std::move(e_)), lr(lr_), bmutex(bmutex_)
-        {}
         tedge(string name_, bool bmutex_ = false)
             : name(std::move(name_)), bmutex(bmutex_)
         {}
         tedge(edge e_, bool bmutex_ = false)
             : e(std::move(e_)), bmutex(bmutex_)
         {}
-		// ÒÆ¶¯¹¹Ôìº¯Êı
+		// ç§»åŠ¨æ„é€ å‡½æ•°
 		tedge(tedge&& other) noexcept
 			: name(std::move(other.name)),
 			e(std::move(other.e)),
@@ -80,7 +77,7 @@ namespace TOPO_TREE
 		{
 			other.parent = nullptr;
 		}
-		// ÒÆ¶¯¸³Öµº¯Êı
+		// ç§»åŠ¨èµ‹å€¼å‡½æ•°
 		tedge& operator=(tedge&& other) noexcept {
 			if (this != &other) {
 				name = std::move(other.name);
@@ -100,25 +97,29 @@ namespace TOPO_TREE
         void operator += (tedge* et)
         {
             children.push_back(et);
+            et->parent = this;
         }
         void addchild(tedge* c)
         {
             children.push_back(c);
+            c->parent = this;
         }
-        void walkL(std::function<void(tedge* to, real t)> cb)
+
+        // æ²¿ç€å·¦ä¾§éå†ï¼Œbmutexä½œä¸ºå¼€å…³æ§åˆ¶
+        void walkL(std::function<void(tedge* to, int i, real t)> cb)
         {
-            //PRINT("walkdownL " << name << "," << this->e.start << "," << this->e.end);
+            //PRINT("walkL " << name << "," << this->e.start << "," << this->e.end);
             if (children.empty()) {
                 if (cb)
                 {
-                   // PRINT("[" << space.min << "," << space.max << "," << space.steps << "]");
-                    space.walk([this, &cb](int i, real t) { cb(this, t); });
+                    //PRINT("[" << space.min << "," << space.max << "," << space.steps << "]");
+                    space.walk([this, &cb](int i, real t) { cb(this, i, t); });
                 }
-                return; // ·µ»Ø
+                return; // è¿”å›
             }
-            if (bmutex) // ¿ÉÒÔ¸ù¾İCHILDRENÊÇ·ñ¶àÓà1¸öÀ´ÅĞ¶Ï
+            if (bmutex) // å¯ä»¥æ ¹æ®CHILDRENæ˜¯å¦å¤šä½™1ä¸ªæ¥åˆ¤æ–­ï¼Ÿ
             {
-                //PRINT("»¥³âÑ¡ LEFT");
+                //PRINT("mutex LEFT");
                 children.front()->walkL(cb);
 
             } else {
@@ -126,44 +127,46 @@ namespace TOPO_TREE
                     c->walkL(cb);
             }
         }
-        void walkR(std::function<void(tedge* to, real t)> cb)
+        static void walkL(tedge* to, std::function<void(tedge* to, int, int)> cb)
+        {
+            // PRINT("walkL " << to->name);
+            if (to->children.empty()) {
+                if (cb)
+                    cb(to, to->e.start, to->e.end);
+                return; // è¿”å›
+            }
+            if (to->bmutex) // å¯ä»¥æ ¹æ®CHILDRENæ˜¯å¦å¤šä½™1ä¸ªæ¥åˆ¤æ–­
+            {
+                //  PRINT("äº’æ–¥é€‰ LEFT");
+                walkL(to->children.front(), cb);
+
+            }
+            else {
+                for (auto c : to->children)
+                    walkL(c, cb);
+            }
+        }
+
+        // æ²¿ç€å³ä¾§éå†ï¼Œbmutexä½œä¸ºå¼€å…³æ§åˆ¶
+        void walkR(std::function<void(tedge* to, int i, real t)> cb)
         {
            // PRINT("walkdownR " << name << "," << this->e.start << "," << this->e.end);
             if (children.empty()) {
                 if (cb)
                 {
                     PRINT("[" << space.min << "," << space.max << "," << space.steps << "]");
-                    space.walk([this, &cb](int i, real t) { cb(this, t); });
+                    space.walk([this, &cb](int i, real t) { cb(this, i, t); });
                 }
-                return; // ·µ»Ø
+                return; // è¿”å›
             }
-            if (bmutex) // ¿ÉÒÔ¸ù¾İCHILDRENÊÇ·ñ¶àÓà1¸öÀ´ÅĞ¶Ï
+            if (bmutex) // å¯ä»¥æ ¹æ®CHILDRENæ˜¯å¦å¤šä½™1ä¸ªæ¥åˆ¤æ–­ï¼Ÿ
             {
-               // PRINT("»¥³âÑ¡ RIGHT");
+               // PRINT("äº’æ–¥é€‰ RIGHT");
                 children.back()->walkR(cb);
 
             } else {
                 for (auto c : children)
                     c->walkR(cb);
-            }
-        }
-        static void walkL(tedge* to, std::function<void(tedge* to, int, int)> cb)
-        {
-           // PRINT("walkdownL " << to->name);
-            if (to->children.empty()) {
-                if(cb)
-                    cb(to, to->e.start, to->e.end);
-                return; // ·µ»Ø
-            }
-            if (to->bmutex) // ¿ÉÒÔ¸ù¾İCHILDRENÊÇ·ñ¶àÓà1¸öÀ´ÅĞ¶Ï
-            {
-                
-              //  PRINT("»¥³âÑ¡ LEFT");
-                walkL(to->children.front(), cb);
-                
-            } else {
-                for (auto c : to->children)
-                    walkL(c, cb);
             }
         }
         static void walkR(tedge* to, std::function<void(tedge* to, int, int)> cb)
@@ -172,11 +175,11 @@ namespace TOPO_TREE
             if (to->children.empty()) {
                 if (cb)
                     cb(to, to->e.end, to->e.start);
-                return; // ·µ»Ø
+                return; // è¿”å›
             }
-            if (to->bmutex) // ¿ÉÒÔ¸ù¾İCHILDRENÊÇ·ñ¶àÓà1¸öÀ´ÅĞ¶Ï
+            if (to->bmutex) // å¯ä»¥æ ¹æ®CHILDRENæ˜¯å¦å¤šä½™1ä¸ªæ¥åˆ¤æ–­
             {
-               // PRINT("»¥³âÑ¡ RIGHT");
+               // PRINT("äº’æ–¥é€‰ RIGHT");
                 walkR(to->children.back(), cb);
 
             } else {
@@ -199,66 +202,17 @@ namespace TOPO_TREE
         }
     };
 	// ------------------------------
-	// ÇúÃæ
+	// æ›²é¢
 	// ------------------------------
 	struct tsurface
 	{
-		std::vector<tedge*> tedges;				// ÔİÊ±¿¼ÂÇÁĞ±íÊ½ÍØÆË½á¹¹
+		std::vector<tedge*> tedges;				// æš‚æ—¶è€ƒè™‘åˆ—è¡¨å¼æ‹“æ‰‘ç»“æ„
 	};
 	// ------------------------------
-	// ĞÎ×´
+	// å½¢çŠ¶
 	// ------------------------------
 	struct tshape
 	{
-		std::vector<tsurface*> tsurfaces;	    // ÍØÆËÃæÁĞ±í
+		std::vector<tsurface*> tsurfaces;	    // æ‹“æ‰‘é¢åˆ—è¡¨
 	};
-}
-inline bool VECLIST_ADD(VECLIST& e, crvec p) { if (e.empty() || e.back().p != p) { e.push_back(p); return true; } return false; }
-inline void topo_edgeL(VECLIST& e, topoE& te, vec3 p_set[])
-{
-    //color = RED;
-    vec3 p0;
-    te.walkL([&](topoE* to, real t) {
-        vec3 p;
-        if (to->lr == topoE::eNone) {
-            p = blend(p_set[to->e.start], p_set[to->e.end], t);
-        }
-        else {
-            coord3 c1(p_set[to->e.start]), c2(p_set[to->e.end]);
-            p = to->lr == topoE::eLeft ?
-                blender::slerp(c1, c2, (c1 + c2) / 2.0f, t).o :
-                blender::slerp_conjcopy(c1, c2, (c1 + c2) / 2.0f, t).o;
-        }
-        if (VECLIST_ADD(e, p)) {
-            /* PRINT("(" << e.size() << ") " << to->name);
-             pt3d(p, 0.01 * e.size());
-             if (p0 != vec3::ZERO)
-                 ptr(p0, p, 0.01);*/
-            p0 = p;
-        }
-        });
-}
-inline void topo_edgeR(VECLIST& e, topoE& te, vec3 p_set[])
-{
-    //color = BLUE;
-    vec3 p0;
-    te.walkR([&](topoE* to, real t) {
-        vec3 p;
-        if (to->lr == topoE::eNone) {
-            p = blend(p_set[to->e.start], p_set[to->e.end], t);
-        }
-        else {
-            coord3 c1(p_set[to->e.start]), c2(p_set[to->e.end]);
-            p = to->lr == topoE::eLeft ?
-                blender::slerp(c1, c2, (c1 + c2) / 2.0f, t).o :
-                blender::slerp_conjcopy(c1, c2, (c1 + c2) / 2.0f, t).o;
-        }
-        if (VECLIST_ADD(e, p)) {
-            /*  PRINT("(" << e.size() << ") " << to->name);
-              pt3d(p, 0.01 * e.size());
-              if (p0 != vec3::ZERO)
-                  ptr(p0, p, 0.01);*/
-            p0 = p;
-        }
-        });
 }
